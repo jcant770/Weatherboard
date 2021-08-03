@@ -11,13 +11,12 @@ let options = "&units=imperial"
 let apids = "&appid="
 let fullurl = URLstart + lat + lon + options + apids + APIKEY;
 
-function gencurrentW() {
+function gencurrentW(lat, lon) {
     fetch(fullurl)
         .then(function (response) {
             return response.json();
         })
         .then(function(data) {
-            console.log(JSON.stringify(data));
             displaycurrentW(data);
             genWeathericon(data);
         });
@@ -31,10 +30,10 @@ var CName = document.querySelector('.city-name');
 
 
 function displaycurrentW() {
-    var tempValue = data.current.temp;
-    var humidValue = data.current.humidity;
-    var WindspeedValue = data.current.wind_speed;
-    var UVindexValue = data.current.uvi;
+    var tempValue = [current][temp];
+    var humidValue = [current][humidity];
+    var WindspeedValue = [current][wind_speed];
+    var UVindexValue = [current][uvi];
 
     temp.innerHTML = tempValue;
     humidity.innerHTML = humidValue;
@@ -51,7 +50,7 @@ function genWeathericon() {
     locationIcon.src = (wiconbase + iconinfo + wiconend ); 
 }
 
-function genfiveday(Search) {
+function genfiveday() {
     fetch(`api.openweathermap.org/data/2.5/forecast?q=${Search}&appid=${APIKEY}`)
         .then(function (response) {
             return response.json();
@@ -67,19 +66,22 @@ var fivedesc = document.querySelector('.fivedescription');
 var fivetemp = document.querySelector('.fivetemp');
 var fiveloc = document.querySelector('fivelocation');
 
-function displayfivedayW(data) {
-    var farenheit = Math.round(((parseFloat(data.list.main.temp)-273.15)*1.8)+32);
-    var descc = data.weather[0].description;
-    var locc =  data.city.name;
-    var countryy = data.city.country;
+function displayfivedayW() {
+    var farenheit = Math.round(((parseFloat([list][main][temp])-273.15)*1.8)+32);
+    var descc = [weather][description];
+    var locc =  [city][name];
+    var countryy = [city][country];
 
     fivedesc.innerHTML = descc;
     fivetemp.innerHTML = farenheit + '&deg;';
     fiveloc.innerHTML = locc + '' + countryy;
+
+    const lat = city.coord.lat;
+    const lon = city.coord.lon;
+    gencurrentW(lat,lon)
 }
 
 button.addEventListener("click", () => {
-    console.log(Search.value);
     if (Search.value){
         genfiveday(Search.value);
         gencurrentW(Search.value);
